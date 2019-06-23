@@ -14,8 +14,10 @@ namespace SAA.Views {
             InitializeComponent();
             Label l1 = new Label() { Text = "Materia" };
             Label l2 = new Label() { Text = "Sección"};
+
             Entry e1 = new Entry() { Keyboard=Keyboard.Text};
             Entry e2 = new Entry() { Keyboard=Keyboard.Numeric};
+
             Button b1 = new Button() { Text = "CREAR", VerticalOptions=LayoutOptions.End};
             Button b2 = new Button() { Text = "ELIMINAR", VerticalOptions = LayoutOptions.End };
 
