@@ -69,7 +69,7 @@ namespace SAA.Models{
 
         public SeccionModel ObtenerSeccion(int SID, int MID) {
             lock (locker) {
-                return conexión.Table<SeccionModel>().FirstOrDefault(x => x.ID == SID && x.idMateria==MID);
+                return conexión.Table<SeccionModel>().FirstOrDefault(x => x.nSeccion == SID && x.idMateria==MID);
             }
         }
 
@@ -151,7 +151,7 @@ namespace SAA.Models{
                 var s = ObtenerSecciones(id);
                 foreach(var seccion in s){ 
                     //por el locker no se puede llamar directamente a EliminarSeccion
-                    var a = ObtenerAsistencias(id, s.id);
+                    var a = ObtenerAsistencias(id, seccion.id);
                     foreach(var asistencia in a) {
                         conexión.Delete<AsistenciaModel>(asistencia.id);
                     }
@@ -161,13 +161,21 @@ namespace SAA.Models{
             }
         }
 
-        public int EliminarSeccion(int id) {
+        public int EliminarSeccion(int id, int ns) {
             lock (locker) {
-                var a = ObtenerAsistencias(id, s.id);
+                var x = ObtenerSeccion(ns, id);
+                var a = ObtenerAsistencias(id, x.id);
                 foreach (var asistencia in a) {
                     conexión.Delete<AsistenciaModel>(asistencia.id);
-                }
-               return conexión.Delete<SeccionModel>(id);
+                }                
+               return conexión.Delete<SeccionModel>(x.id);
+            }
+        }
+
+        public void EliminarAsistencias(int mid, int sid) {
+            var a = ObtenerAsistencias(mid,sid);
+            foreach (var asistencia in a) {
+                conexión.Delete<AsistenciaModel>(asistencia.id);
             }
         }
     }
