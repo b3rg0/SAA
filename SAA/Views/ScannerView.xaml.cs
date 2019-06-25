@@ -23,8 +23,12 @@ namespace SAA.Views {
 
             zxing.OnScanResult += (result) =>
                 Device.BeginInvokeOnMainThread(async () => {
+                
                     zxing.IsAnalyzing = false;
-                    await DisplayAlert("Scanned Barcode", result.Text, "OK");
+                    var resultado = Verificar(result.Text);
+                    // Show an alert
+                    await DisplayAlert("Scanned Barcode", resultado, "OK");
+                    MessagingCenter.Send(this, "", resultado);
                     await Navigation.PopModalAsync();
                 });
 
@@ -49,6 +53,27 @@ namespace SAA.Views {
             Content = grid;
         }
 
+        private string Verificar(string text) {
+            string s = "el dato:\n" + text + "\nno posee un formato valido";
+
+            if (text.Contains('-')) {
+                string[] r = text.Split('-');
+                if (r.Length == 2) {
+                    r[0] = r[0].Trim();
+                    r[1] = r[1].Trim();
+                    s = r[0];
+                    r = r[1].Split(' ');
+                    if (r.Length == 4) {
+                        s += "-" + r[0] + " " + r[1] + "-" + r[2] + " " + r[3];
+                    }
+                    else {
+                        s = "el dato:\n" + text + "\nno posee un formato valido";
+                    }
+                }
+
+            }
+            return s;
+        }
         protected override void OnAppearing() {
             base.OnAppearing();
 
