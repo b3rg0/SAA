@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Xamarin.Forms;
 using System.Linq;
 using SQLite;
+using System.Collections.ObjectModel;
 
 namespace SAA.Models{
     public class GestorBDD {
@@ -37,10 +38,13 @@ namespace SAA.Models{
             }
         }
 
-        public IEnumerable<MateriaModel> ObtenerMaterias() {
+        public ObservableCollection<MateriaModel> ObtenerMaterias() {
             lock (locker) {
                 var x = (from i in conexión.Table<MateriaModel>() select i).ToList();
-                return x;
+                var oc = new ObservableCollection<MateriaModel>();
+                foreach (var e in x)
+                    oc.Add(e);
+                return oc;
             }
         }
 
@@ -52,48 +56,54 @@ namespace SAA.Models{
 
         public bool ExisteMateria(string nombre) {
             lock (locker) {
-                var x = conexión.Table<MateriaModel>().FirstOrDefault(x => x.Nombre == nombre);
+                var y = conexión.Table<MateriaModel>().FirstOrDefault(x => x.Nombre == nombre);
                 //usar to lowerCase y trim()
-                if (x == null) //default ==null ???? stackoverflow
+                if (y == null) //default ==null ???? stackoverflow
                 
                     return false;
                 return true;
             }
         }
-        public IEnumerable<SeccionModel> ObtenerSecciones(int MID) {
+        public ObservableCollection<SeccionModel> ObtenerSecciones(int MID) {
             lock (locker) {
-                var x = (from i in conexión.Table<SeccionModel>() where MID ==i.idMateria select i).ToList();
-                return x;
+                var x = (from i in conexión.Table<SeccionModel>() where MID == i.id_materias select i).ToList();
+                var oc = new ObservableCollection<SeccionModel>();
+                foreach (var e in x)
+                    oc.Add(e);
+                return oc;
             }
         }
 
-        public SeccionModel ObtenerSeccion(int SID, int MID) {
+        public SeccionModel ObtenerSeccion(int SID) {
             lock (locker) {
-                return conexión.Table<SeccionModel>().FirstOrDefault(x => x.nSeccion == SID && x.idMateria==MID);
+                return conexión.Table<SeccionModel>().FirstOrDefault(x => x.id == SID );
             }
         }
 
         public bool ExisteSeccion(int NS) {// el num de la seccion
             lock (locker) {
-                var x = conexión.Table<SeccionModel>().FirstOrDefault(x => x.nSeccion == NS);                
-                if (x == null) 
+                var y = conexión.Table<SeccionModel>().FirstOrDefault(x => x.id == NS);                
+                if (y == null) 
                     return false;
                 return true;
             }
         }
 
-        public IEnumerable<AsistenciaModel> ObtenerAsistencias(int MID, int SID) {
+        public ObservableCollection<AsistenciaModel> ObtenerAsistencias(int SID) {
             lock (locker) {
-                var x = (from i in conexión.Table<AsistenciaModel>() where MID == i.idMateria && SID== i.idSeccion select i).ToList();
-                return x;
+                var x = (from i in conexión.Table<AsistenciaModel>() where SID == i.id_seccion select i).ToList();
+                var oc = new ObservableCollection<AsistenciaModel>();
+                foreach (var e in x)
+                    oc.Add(e);
+                return oc;
             }
         }
 
-        public bool ExisteAsistencia(int MID, int AID) {
+        public bool ExisteAsistencia(int MID, string AID) {
             lock (locker) {
-                var x = conexión.Table<AsistenciaModel>().FirstOrDefault(x => x.idMateria == MID && x.idAlumno== AID);
+                var y = conexión.Table<AsistenciaModel>().FirstOrDefault(x => x.id_seccion == MID && x.Cedula== AID);
                 //usar to lowerCase y trim()
-                if (x == null) //default ==null ???? stackoverflow
+                if (y == null) //default ==null ???? stackoverflow
 
                     return false;
                 return true;
@@ -117,12 +127,12 @@ namespace SAA.Models{
 
         public int AlmacenarSeccion(SeccionModel seccion) {
             lock (locker) {       
-                if(!ExisteMateria(ObtenerMateria(seccion.idMateria).Nombre)) { // linea 57
+                if(!ExisteMateria(ObtenerMateria(seccion.id_materias).Nombre)) { // linea 57
                     return -1;
                 }                
-                if (seccion.ID != 0) {
+                if (seccion.id != 0) {
                     conexión.Update(seccion);
-                    return seccion.ID;
+                    return seccion.id;
                 }
                 else {
                     return conexión.Insert(seccion);
@@ -132,12 +142,12 @@ namespace SAA.Models{
 
         public int AlmacenarAsistencia(AsistenciaModel asistencia) {
             lock (locker) {
-                if (ObtenerAsistencia(asistencia.idMateria, asistencia.idAlumno)) { // linea 57
+                if (ExisteAsistencia(asistencia.id_seccion, asistencia.Cedula)) { // linea 57
                     return -1;
                 }                
-                if (asistencia.ID != 0) {
+                if (asistencia.id != 0) {
                     conexión.Update(asistencia);
-                    return asistencia.ID;
+                    return asistencia.id;
                 }
                 else {
                     return conexión.Insert(asistencia);
@@ -151,7 +161,7 @@ namespace SAA.Models{
                 var s = ObtenerSecciones(id);
                 foreach(var seccion in s){ 
                     //por el locker no se puede llamar directamente a EliminarSeccion
-                    var a = ObtenerAsistencias(id, seccion.id);
+                    var a = ObtenerAsistencias(seccion.id);
                     foreach(var asistencia in a) {
                         conexión.Delete<AsistenciaModel>(asistencia.id);
                     }
@@ -161,19 +171,18 @@ namespace SAA.Models{
             }
         }
 
-        public int EliminarSeccion(int id, int ns) {
-            lock (locker) {
-                var x = ObtenerSeccion(ns, id);
-                var a = ObtenerAsistencias(id, x.id);
+        public int EliminarSeccion(int ns) {
+            lock (locker) {                
+                var a = ObtenerAsistencias(ns);
                 foreach (var asistencia in a) {
                     conexión.Delete<AsistenciaModel>(asistencia.id);
                 }                
-               return conexión.Delete<SeccionModel>(x.id);
+               return conexión.Delete<SeccionModel>(ns);
             }
         }
 
-        public void EliminarAsistencias(int mid, int sid) {
-            var a = ObtenerAsistencias(mid,sid);
+        public void EliminarAsistencias(int sid) {
+            var a = ObtenerAsistencias(sid);
             foreach (var asistencia in a) {
                 conexión.Delete<AsistenciaModel>(asistencia.id);
             }

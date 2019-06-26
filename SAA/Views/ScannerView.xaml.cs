@@ -27,9 +27,10 @@ namespace SAA.Views {
                     zxing.IsAnalyzing = false;
                     var resultado = Verificar(result.Text);
                     // Show an alert
+                    
                     await DisplayAlert("Scanned Barcode", resultado, "OK");
-                    MessagingCenter.Send(this, "", resultado);
-                    await Navigation.PopModalAsync();
+                    
+                    //await Navigation.PopModalAsync();
                 });
 
             overlay = new ZXingDefaultOverlay {
@@ -58,13 +59,13 @@ namespace SAA.Views {
 
             if (text.Contains('-')) {
                 string[] r = text.Split('-');
-                if (r.Length == 2) {
+                if (r.Length > 1) {
                     r[0] = r[0].Trim();
                     r[1] = r[1].Trim();
                     s = r[0];
                     r = r[1].Split(' ');
                     if (r.Length == 4) {
-                        s += "-" + r[0] + " " + r[1] + "-" + r[2] + " " + r[3];
+                        s += "-" + r[0] + "-" + r[2];
                     }
                     else {
                         s = "el dato:\n" + text + "\nno posee un formato valido";
@@ -72,6 +73,7 @@ namespace SAA.Views {
                 }
 
             }
+            MessagingCenter.Send(this, "", s);
             return s;
         }
         protected override void OnAppearing() {

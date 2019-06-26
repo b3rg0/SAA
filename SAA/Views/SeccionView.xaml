@@ -1,23 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="SAA.Views.MateriaView"
-             xmlns:local="clr-namespace:SAA.ViewModels"
-             Title ="Listado de Materias">
+             x:Class="SAA.Views.SeccionView"
+             Title ="Listado de Secciones">
     <ContentPage.Content>
         <StackLayout>
-            <!--ListView x:Name="lista_materias"
-                      ItemsSource="{Binding listamaterias}">
+            <!--ListView x:Name="listasecciones"
+                      ItemsSource="{Binding listasecciones}" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <ViewCell>
+                        <ViewCell Height="70">
                             <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                                <Label x:Name="id" Text="{Binding ID}" FontAttributes="Bold" IsVisible="False"/>
-                                <Label Text="{Binding Nombre}" FontAttributes="Bold"/>
+                                <Label x:Name="id" Text="{Binding id}" FontAttributes="Bold"/>
                                 <Button Text="ver secciones"
                                             CornerRadius="15"
-                                            BindingContext="{Binding Source={x:Reference listamaterias}, Path=BindingContext}"
-                                            Command="{Binding VerSeccionesCommand, Path=BindingContext}"
+                                            BindingContext="{Binding Source={x:Reference listsecciones}, Path=BindingContext}"
+                                            Command="{Binding VerAsistenciaCommand, Path=BindingContext}"
                                             CommandParameter= "{Binding Source={x:Reference id}, Path=Text}"/>
                             </StackLayout>
                         </ViewCell>
@@ -25,7 +23,7 @@
                 </ListView.ItemTemplate>
             </>
             <Button Text="Opciones de Materia"
-                                Command="{Binding ModificarMateriaCommand}"/-->
+                                Command="{Binding ModificarSeccionCommand}"/-->
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

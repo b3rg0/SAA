@@ -8,7 +8,7 @@ namespace SAA {
         public App() {
             InitializeComponent();
 
-            MainPage = new Views.EditarView();
+            MainPage = new Views.MateriaView();
         }
 
         static Models.GestorBDD baseDeDatos;

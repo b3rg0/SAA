@@ -10,20 +10,15 @@ using Xamarin.Forms.Xaml;
 namespace SAA.Views {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class EditarView : ContentPage {
-        public EditarView() {
+        public EditarView(int a) {
             InitializeComponent();
-            Label l1 = new Label() { Text = "Materia" };
-            Label l2 = new Label() { Text = "Sección"};
-
-            Entry e1 = new Entry() { Keyboard=Keyboard.Text};
-            Entry e2 = new Entry() { Keyboard=Keyboard.Numeric};
-
-            Button b1 = new Button() { Text = "CREAR", VerticalOptions=LayoutOptions.End};
-            Button b2 = new Button() { Text = "ELIMINAR", VerticalOptions = LayoutOptions.End };
-
-            Content = new StackLayout() {
-                Children = { l1, e1, l2, e2,b1,b2 }
-            };
+            this.BindingContext = new SAA.ViewModels.EditarViewModel(a);
         }
-    }
+
+        public EditarView(int a, int m) {
+            InitializeComponent();
+            this.BindingContext = new SAA.ViewModels.EditarViewModel(a, m);
+        }
+        
+    }    
 }
